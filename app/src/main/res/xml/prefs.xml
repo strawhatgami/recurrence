@@ -51,5 +51,9 @@
             android:summary="@string/calendar_list_summary"
             android:entries="@array/defaultCalendarList"
             android:entryValues="@array/defaultCalendarValuesList" />
+        <CheckBoxPreference
+            android:key="checkBoxHideSnoozeActivity"
+            android:title="@string/hide_snooze_activity"
+            android:summary="@string/hide_snooze_activity_detail" />
     </PreferenceCategory>
 </PreferenceScreen>
