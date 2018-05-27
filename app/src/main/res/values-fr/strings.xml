@@ -11,6 +11,8 @@
     <string name="snooze">Snooze</string>
     <string name="snooze_detail">Ajouter une action de rappel à la notification</string>
     <string name="snooze_length">Durée du rappel</string>
+    <string name="change_event_date_on_snooze">Snoozer change la date</string>
+    <string name="change_event_date_on_snooze_detail">Changer la date de l\'évènement pour la date de l\'alarme</string>
     <string name="mark_as_done">Marquer comme fait</string>
     <string name="mark_as_done_detail">Ajouter une action \"Marquer comme fait\" à la notification</string>
     <string name="nagging_reminder">Ecran de rappel</string>

@@ -20,8 +20,8 @@ public class Reminder {
     public static final int YEARLY = 5;
     public static final int SPECIFIC_DAYS = 6;
     public static final int ADVANCED = 7;
-
     public static final int DEFAULT_ID = -1;
+
     public static final int DEFAULT_TIMES_SHOWN = 0;
     public static final int DEFAULT_TIMES_TO_SHOW = 1;
     public static final int DEFAULT_INTERVAL = 1;

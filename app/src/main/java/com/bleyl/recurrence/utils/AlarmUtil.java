@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.preference.PreferenceManager;
 
 import com.bleyl.recurrence.database.DatabaseHelper;
 import com.bleyl.recurrence.models.Reminder;
@@ -25,6 +26,19 @@ public class AlarmUtil {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        }
+
+        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("checkBoxChangeEventDateOnSnooze", false)) {
+            DatabaseHelper database = DatabaseHelper.getInstance(context);
+            if (reminderId != Reminder.DEFAULT_ID && database.isReminderPresent(reminderId)) {
+                Reminder reminder = database.getReminder(reminderId);
+                reminder
+                        .setDateAndTime(DateAndTimeUtil.toStringDateAndTime(calendar))
+                        .setNumberToShow(reminder.getNumberShown() + 1);
+
+                database.addReminder(reminder);
+            }
+            database.close();
         }
     }
 
