@@ -15,9 +15,15 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            resValue "string", "app_name", "Recurrence"
             lintOptions {
                 disable 'MissingTranslation'
             }
+        }
+
+        debug {
+            applicationIdSuffix ".dev"
+            resValue "string", "app_name", "Recurrence-dev"
         }
     }
 }
