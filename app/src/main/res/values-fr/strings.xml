@@ -9,6 +9,8 @@
     <string name="checkbox_ongoing">Notification persistante</string>
     <string name="snooze">Snooze</string>
     <string name="snooze_detail">Ajouter une action de rappel à la notification</string>
+    <string name="hide_snooze_activity">Toujours utiliser l\'interval de rappel par défaut</string>
+    <string name="hide_snooze_activity_detail">Ne pas demander la durée lors de l\'appui sur le boutton de rappel</string>
     <string name="snooze_length">Durée du rappel</string>
     <string name="mark_as_done">Marquer comme fait</string>
     <string name="mark_as_done_detail">Ajouter une action \"Marquer comme fait\" à la notification</string>

@@ -10,6 +10,8 @@
     <string name="ongoing_detail">Prevent notification from being swiped away</string>
     <string name="snooze">Snooze</string>
     <string name="snooze_detail">Add a snooze action to the notification</string>
+    <string name="hide_snooze_activity">Always use default snooze length</string>
+    <string name="hide_snooze_activity_detail">Don\'t ask for snooze duration when snoozing</string>
     <string name="snooze_length">Snooze length</string>
     <string name="mark_as_done">Mark as done</string>
     <string name="mark_as_done_detail">Add a \"Mark as done\" action to the notification</string>

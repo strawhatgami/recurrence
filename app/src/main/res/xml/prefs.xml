@@ -35,5 +35,9 @@
         <com.bleyl.recurrence.dialogs.PreferenceNagTimePicker
             android:key="nagInterval"
             android:title="@string/nagging_interval"/>
+        <CheckBoxPreference
+            android:key="checkBoxHideSnoozeActivity"
+            android:title="@string/hide_snooze_activity"
+            android:summary="@string/hide_snooze_activity_detail" />
     </PreferenceCategory>
 </PreferenceScreen>
