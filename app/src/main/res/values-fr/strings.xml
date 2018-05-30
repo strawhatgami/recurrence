@@ -20,6 +20,8 @@
     <string name="nagging_reminder">Ecran de rappel</string>
     <string name="nagging_detail">Notifier continuellement jusqu\'à la lecture de la notification</string>
     <string name="nagging_interval">Interval de rappel</string>
+    <string name="fix_date">Correction auto dates</string>
+    <string name="fix_date_detail">Si dans le passé lors de l\'enregistrement des détails</string>
     <string name="action_settings">Paramètres</string>
     <string name="action_delete">Supprimer</string>
     <string name="action_edit">Éditer</string>

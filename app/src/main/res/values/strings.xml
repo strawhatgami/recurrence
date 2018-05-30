@@ -20,6 +20,8 @@
     <string name="nagging_reminder">Nagging reminder</string>
     <string name="nagging_detail">Continuously notify you of the current notification until it is dismissed</string>
     <string name="nagging_interval">Nagging interval</string>
+    <string name="fix_date">Auto fix dates in past</string>
+    <string name="fix_date_detail">When saving event</string>
     <string name="action_settings">Settings</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
