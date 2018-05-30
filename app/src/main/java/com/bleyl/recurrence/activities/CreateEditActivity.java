@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -87,6 +88,7 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
     private int repeatType = Reminder.DOES_NOT_REPEAT;
     private int id;
     private int interval = 1;
+    private Boolean dateTimeValidated = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -222,6 +224,10 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
                 calendar.set(Calendar.HOUR_OF_DAY, hour);
                 calendar.set(Calendar.MINUTE, minute);
                 timeText.setText(DateAndTimeUtil.toStringReadableTime(calendar, getApplicationContext()));
+                validateInputDateAndTime();
+                if (!dateTimeValidated) {
+                    imageWarningTime.setVisibility(View.VISIBLE);
+                }
             }
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), DateFormat.is24HourFormat(this));
         timePicker.show();
@@ -237,6 +243,10 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
                 calendar.set(Calendar.MONTH, month);
                 calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 dateText.setText(DateAndTimeUtil.toStringReadableDate(calendar));
+                validateInputDateAndTime();
+                if (!dateTimeValidated) {
+                    imageWarningDate.setVisibility(View.VISIBLE);
+                }
             }
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         datePicker.show();
@@ -375,18 +385,24 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
         }
     }
 
-    private void validateInput() {
-        imageWarningShow.setVisibility(View.GONE);
+    private void validateInputDateAndTime() {
         imageWarningTime.setVisibility(View.GONE);
         imageWarningDate.setVisibility(View.GONE);
+
         Calendar nowCalendar = Calendar.getInstance();
         correctValues(nowCalendar);
 
+        dateTimeValidated = DateAndTimeUtil.toLongDateAndTime(calendar) >= DateAndTimeUtil.toLongDateAndTime(nowCalendar);
+    }
+
+    private void validateInput() {
+        imageWarningShow.setVisibility(View.GONE);
+
+        Calendar nowCalendar = Calendar.getInstance();
+        correctValues(nowCalendar);
         // Check if selected date is before today's date
-        if (DateAndTimeUtil.toLongDateAndTime(calendar) < DateAndTimeUtil.toLongDateAndTime(nowCalendar)) {
+        if (!dateTimeValidated) {
             Snackbar.make(coordinatorLayout, R.string.toast_past_date, Snackbar.LENGTH_SHORT).show();
-            imageWarningTime.setVisibility(View.VISIBLE);
-            imageWarningDate.setVisibility(View.VISIBLE);
 
             // Check if title is empty
         } else if (titleEditText.getText().toString().trim().isEmpty()) {
@@ -436,6 +452,14 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
                 onBackPressed();
                 return true;
             case R.id.action_save:
+                if (!dateTimeValidated &&
+                    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("checkBoxAutoFixDateInPast", false)) {
+                    calendar = Calendar.getInstance();
+                    calendar.set(Calendar.SECOND, calendar.get(Calendar.SECOND) + 1);
+
+                    validateInputDateAndTime();
+                }
+
                 validateInput();
                 return true;
         }
