@@ -242,7 +242,10 @@ public class ViewActivity extends AppCompatActivity {
 
     public void updateReminder() {
         DatabaseHelper database = DatabaseHelper.getInstance(this);
-        reminder = database.getNotification(reminder.getId());
+        Reminder updatedReminder = database.getNotification(reminder.getId());
+        if (updatedReminder.getId() >= 0) {
+            reminder = updatedReminder;
+        }
         database.close();
         assignReminderValues();
     }
