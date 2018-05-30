@@ -21,7 +21,7 @@ public class Reminder {
     public static final int SPECIFIC_DAYS = 6;
     public static final int ADVANCED = 7;
 
-    private int id;
+    private int id = -1;
     private String title;
     private String content;
     private String dateAndTime;

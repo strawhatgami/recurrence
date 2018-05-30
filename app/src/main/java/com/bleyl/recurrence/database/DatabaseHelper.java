@@ -231,11 +231,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = database.rawQuery("SELECT * FROM " + REMINDER_TABLE
                 + " WHERE " + COL_ID + " = ? LIMIT 1", new String[]{String.valueOf(id)});
 
-        cursor.moveToFirst();
-        Reminder reminder = Reminder.createFromCursor(cursor);
-        if (reminder.getRepeatType() == Reminder.SPECIFIC_DAYS)
-            getDaysOfWeek(reminder, database);
+        Reminder reminder;
+        if (cursor.moveToFirst()) {
+            reminder = Reminder.createFromCursor(cursor);
+        } else {
+            reminder = new Reminder();
+        }
         cursor.close();
+
+        if (reminder.getRepeatType() == Reminder.SPECIFIC_DAYS) {
+            getDaysOfWeek(reminder, database);
+        }
+
         return reminder;
     }
 
