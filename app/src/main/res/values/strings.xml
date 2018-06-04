@@ -60,6 +60,12 @@
     <string name="thanks_to">Thanks to</string>
     <string name="translator">Translator</string>
     <string name="send_email">Send email</string>
+    <string name="default_calendar">No calendar</string>
+    <string name="default_calendar_value">-1</string>
+    <string name="calendar_sync_checkbox">Sync reminders with calendar</string>
+    <string name="calendar_list_title">Select calendar</string>
+    <string name="calendar_list_summary">Select the dedicated calendar to sync with</string>
+
     <string-array name="repeat_array">
         <item>Does not repeat</item>
         <item>Every hour</item>
