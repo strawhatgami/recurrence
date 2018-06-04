@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string-array name="defaultCalendarList">
+    <item>@string/default_calendar</item>
+  </string-array>
+  <string-array name="defaultCalendarValuesList">
+    <item>@string/default_calendar_value</item>
+  </string-array>
+</resources>

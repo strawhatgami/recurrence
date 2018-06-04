@@ -32,4 +32,12 @@ public class PreferenceActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+        PreferenceFragment preferenceFragment = (PreferenceFragment) getFragmentManager().findFragmentByTag(preferenceFragmentTag);
+
+        if (requestCode == preferenceFragment.PERM_REQUEST_ID){
+            preferenceFragment.syncCalendarPermissionCallback(permissions, grantResults);
+        }
+    }
 }
