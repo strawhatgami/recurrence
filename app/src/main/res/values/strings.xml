@@ -63,10 +63,11 @@
     <string name="send_email">Send email</string>
     <string name="default_calendar">No calendar</string>
     <string name="default_calendar_value">-1</string>
-    <string name="calendar_sync_checkbox">Sync reminders with calendar</string>
-    <string name="calendar_list_title">Select calendar</string>
-    <string name="calendar_list_summary">Select the dedicated calendar to sync with</string>
-
+    <string name="calendar_sync_checkbox_title">Sync reminders with calendar</string>
+    <string name="calendar_sync_checkbox_summary">Needs the permissions asked when enabling functionality to be permanently given</string>
+    <string name="calendar_list_title">Select calendar to sync reminders with</string>
+    <string name="calendar_list_summary">Select the calendar that will have for only purpose this app syncs. Once chosen all its events will be automatically imported.</string>
+    <string name="perm_cb_build_calendar_pref_list" translatable="false">getCalendarsListPermissionCallback</string>
     <string-array name="repeat_array">
         <item>Does not repeat</item>
         <item>Every hour</item>

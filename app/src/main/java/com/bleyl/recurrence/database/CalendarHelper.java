@@ -8,7 +8,7 @@ import android.provider.CalendarContract.Calendars;
 import java.util.HashMap;
 
 public class CalendarHelper{
-  public HashMap<String, String> calendarsHashMap(Context context) {
+  public HashMap<String, String> getCalendarsList(Context context) {
     final String[] EVENT_PROJECTION = new String[]{
         Calendars._ID,
         Calendars.CALENDAR_DISPLAY_NAME

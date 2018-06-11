@@ -37,7 +37,8 @@
             android:title="@string/nagging_interval"/>
         <CheckBoxPreference
           android:key="checkBoxSyncCalendars"
-          android:title="@string/calendar_sync_checkbox"/>
+          android:title="@string/calendar_sync_checkbox_title"
+          android:summary="@string/calendar_sync_checkbox_summary"/>
         <ListPreference
           android:key="listSyncCalendar"
           android:defaultValue="@string/default_calendar_value"
