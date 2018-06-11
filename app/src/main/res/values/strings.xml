@@ -69,6 +69,7 @@
     <string name="perm_cb_build_calendar_pref_list" translatable="false">getCalendarsListPermissionCallback</string>
     <string name="perm_cb_write_reminder_in_calendar" translatable="false">saveNotificationPermissionCallback</string>
     <string name="perm_cb_delete_reminder_in_calendar" translatable="false">actionDeletePermissionCallback</string>
+    <string name="perm_cb_restore_from_calendar" translatable="false">restoreFromCalendarPermissionCallback</string>
     <string-array name="repeat_array">
         <item>Does not repeat</item>
         <item>Every hour</item>
