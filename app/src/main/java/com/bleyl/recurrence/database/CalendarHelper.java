@@ -31,22 +31,6 @@ import java.util.TimeZone;
 public class CalendarHelper{
   private static String COL_BLOB = Events.EVENT_LOCATION;
 
-  public static int getSyncId(Context context) {
-    // The reminder is a new one, let's get an id for it. Values will be filled after.
-    Uri createdRow;
-    try {
-      createdRow = context.getContentResolver().insert(Events.CONTENT_URI, new ContentValues());
-    } catch (SecurityException ignored) {
-      return Reminder.DEFAULT_ID;
-    }
-
-    if (createdRow == null){
-      return Reminder.DEFAULT_ID;
-    }
-
-    return (int) ContentUris.parseId(createdRow);
-  }
-
   private static Reminder getReminderFromEventDB(Gson gson, Context context,  Cursor cursor) {
     /* Fields non widely implemented as SYNC_DATAx, or complex to handle as RRULE, are put in a
      * widely implemented (but not used by Recurrence) field (COL_BLOB) as a serialized JSON object.
@@ -63,7 +47,11 @@ public class CalendarHelper{
     int intColor = cursor.getInt(cursor.getColumnIndexOrThrow(Events.EVENT_COLOR));
     long longDateAndTime = cursor.getLong(cursor.getColumnIndexOrThrow(Events.DTSTART));
 
-    if (cursor.getString(cursor.getColumnIndexOrThrow(Events.ORIGINAL_ID)) == null){
+    /* The value stored in Events.ORIGINAL_ID is in fact Events._ID, but some reminders (the
+     * created but never updated) have not their Events.ORIGINAL_ID set.
+     * So we use this fallback solution.
+     */
+    if (syncId == 0 || syncId == Reminder.DEFAULT_ID){
       syncId = cursor.getInt(cursor.getColumnIndexOrThrow(Events._ID));
     }
     if (title == null) title = "";
@@ -205,7 +193,7 @@ public class CalendarHelper{
     try {
       dtstart = formatter.parse(strDate).getTime();
     } catch (ParseException ex){
-      System.out.println(ex.toString());
+      System.err.println(ex.toString());
       return reminder.getSyncId();
     }
 
@@ -240,7 +228,7 @@ public class CalendarHelper{
 
       return (int) ContentUris.parseId(resultUri);
     } else {
-      values.put(Events.ORIGINAL_ID, reminder.getId());
+      values.put(Events.ORIGINAL_ID, reminder.getSyncId());
       Uri uri = ContentUris.withAppendedId(Events.CONTENT_URI, reminder.getSyncId());
       cr.update(uri, values, null, null);
       return reminder.getSyncId();
@@ -253,8 +241,11 @@ public class CalendarHelper{
 
     if (reminder.getSyncId() == Reminder.DEFAULT_ID) return;
 
-    Uri uri = ContentUris.withAppendedId(Events.CONTENT_URI, reminder.getSyncId());
-    cr.delete(uri,null, null);
+    // The "ContentUris.withAppendedId" method doesn't work here
+    cr.delete(Events.CONTENT_URI,
+      Events._ID + " = ? OR " + Events.ORIGINAL_ID + " = ?",
+      new String[]{String.valueOf(reminder.getSyncId()), String.valueOf(reminder.getSyncId())}
+    );
   }
 
   public HashMap<String, String> getCalendarsList(Context context) {

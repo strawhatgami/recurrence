@@ -310,6 +310,7 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
 
         Reminder reminder = new Reminder()
             .setId(id)
+            .setSyncId(syncId)
             .setTitle(titleEditText.getText().toString())
             .setContent(contentEditText.getText().toString())
             .setDateAndTime(DateAndTimeUtil.toStringDateAndTime(calendar))
