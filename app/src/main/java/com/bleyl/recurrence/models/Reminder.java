@@ -16,7 +16,13 @@ public class Reminder {
     public static final int SPECIFIC_DAYS = 6;
     public static final int ADVANCED = 7;
 
-    private int id;
+    public static final int DEFAULT_ID = -1;
+    public static final int DEFAULT_TIMES_SHOWN = 0;
+    public static final int DEFAULT_TIMES_TO_SHOW = 1;
+    public static final int DEFAULT_INTERVAL = 1;
+
+    private int id = DEFAULT_ID;
+    private int syncId = DEFAULT_ID;
     private String title;
     private String content;
     private String dateAndTime;
@@ -35,6 +41,15 @@ public class Reminder {
 
     public Reminder setId(int id) {
         this.id = id;
+        return this;
+    }
+
+    public int getSyncId() {
+        return syncId;
+    }
+
+    public Reminder setSyncId(int syncId) {
+        this.syncId = syncId;
         return this;
     }
 

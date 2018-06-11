@@ -1,10 +1,13 @@
 package com.bleyl.recurrence.activities;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
@@ -26,6 +29,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
+import com.bleyl.recurrence.database.CalendarHelper;
 import com.bleyl.recurrence.database.DatabaseHelper;
 import com.bleyl.recurrence.dialogs.AdvancedRepeatSelector;
 import com.bleyl.recurrence.dialogs.DaysOfWeekSelector;
@@ -34,10 +38,10 @@ import com.bleyl.recurrence.dialogs.RepeatSelector;
 import com.bleyl.recurrence.models.Colour;
 import com.bleyl.recurrence.models.Reminder;
 import com.bleyl.recurrence.R;
-import com.bleyl.recurrence.receivers.AlarmReceiver;
 import com.bleyl.recurrence.utils.AlarmUtil;
 import com.bleyl.recurrence.utils.AnimationUtil;
 import com.bleyl.recurrence.utils.DateAndTimeUtil;
+import com.bleyl.recurrence.utils.PermissionUtil;
 import com.bleyl.recurrence.utils.TextFormatUtil;
 
 import java.util.Calendar;
@@ -76,11 +80,13 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
     private String colour;
     private Calendar calendar;
     private boolean[] daysOfWeek = new boolean[7];
-    private int timesShown = 0;
-    private int timesToShow = 1;
+    private int timesShown = Reminder.DEFAULT_TIMES_SHOWN;
+    private int timesToShow = Reminder.DEFAULT_TIMES_TO_SHOW;
     private int repeatType;
     private int id;
-    private int interval = 1;
+    private int syncId = Reminder.DEFAULT_ID;
+    private int interval = Reminder.DEFAULT_INTERVAL;
+    boolean updateReminderInCalendar = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +123,7 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
         Reminder reminder = database.getNotification(id);
         database.close();
 
+        syncId = reminder.getSyncId();
         timesShown = reminder.getNumberShown();
         repeatType = reminder.getRepeatType();
         interval = reminder.getInterval();
@@ -272,19 +279,53 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
     }
 
     public void saveNotification() {
+        Context context = getBaseContext();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        Boolean saveInCalendar = sharedPreferences.getBoolean("checkBoxSyncCalendars", false);
+        String noCalendarId = this.getResources().getString(R.string.default_calendar_value);
+        String calendarId = sharedPreferences.getString("listSyncCalendar", noCalendarId);
+
+        if (saveInCalendar && !calendarId.equals(noCalendarId)) {
+            String[] permissions = new String[]{Manifest.permission.WRITE_CALENDAR};
+            PermissionUtil
+                .getInstance()
+                .allPermissionsGrantedOrAskForThem(
+                    this,
+                    this,
+                    R.string.perm_cb_write_reminder_in_calendar,
+                    permissions
+                );
+        } else {
+            saveNotificationCallback();
+        }
+    }
+
+    public void saveNotificationPermissionCallback(String[] permissions, int[] grantResults) {
+        updateReminderInCalendar = PermissionUtil.allGranted(grantResults);
+        saveNotificationCallback();
+    }
+
+    private void saveNotificationCallback() {
         DatabaseHelper database = DatabaseHelper.getInstance(this);
+
         Reminder reminder = new Reminder()
-                .setId(id)
-                .setTitle(titleEditText.getText().toString())
-                .setContent(contentEditText.getText().toString())
-                .setDateAndTime(DateAndTimeUtil.toStringDateAndTime(calendar))
-                .setRepeatType(repeatType)
-                .setForeverState(Boolean.toString(foreverSwitch.isChecked()))
-                .setNumberToShow(timesToShow)
-                .setNumberShown(timesShown)
-                .setIcon(icon)
-                .setColour(colour)
-                .setInterval(interval);
+            .setId(id)
+            .setTitle(titleEditText.getText().toString())
+            .setContent(contentEditText.getText().toString())
+            .setDateAndTime(DateAndTimeUtil.toStringDateAndTime(calendar))
+            .setRepeatType(repeatType)
+            .setForeverState(Boolean.toString(foreverSwitch.isChecked()))
+            .setNumberToShow(timesToShow)
+            .setNumberShown(timesShown)
+            .setIcon(icon)
+            .setColour(colour)
+            .setInterval(interval);
+
+        if (updateReminderInCalendar) {
+            // If the reminder is a new one, This sets its sync id.
+            // This must be called before database.addNotification() because it changes the reminder id
+            reminder.setSyncId(CalendarHelper.syncUpdatedReminderInCalendar(this, reminder));
+        }
 
         database.addNotification(reminder);
 
@@ -294,9 +335,7 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
         }
 
         database.close();
-        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
-        calendar.set(Calendar.SECOND, 0);
-        AlarmUtil.setAlarm(this, alarmIntent, reminder.getId(), calendar);
+        AlarmUtil.setAlarm(this, reminder);
         finish();
     }
 
