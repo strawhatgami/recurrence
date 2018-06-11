@@ -68,6 +68,7 @@
     <string name="calendar_list_summary">Select the calendar that will have for only purpose this app syncs. Once chosen all its events will be automatically imported.</string>
     <string name="perm_cb_build_calendar_pref_list" translatable="false">getCalendarsListPermissionCallback</string>
     <string name="perm_cb_write_reminder_in_calendar" translatable="false">saveNotificationPermissionCallback</string>
+    <string name="perm_cb_delete_reminder_in_calendar" translatable="false">actionDeletePermissionCallback</string>
     <string-array name="repeat_array">
         <item>Does not repeat</item>
         <item>Every hour</item>
