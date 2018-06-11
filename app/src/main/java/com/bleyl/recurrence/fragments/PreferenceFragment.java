@@ -2,16 +2,14 @@ package com.bleyl.recurrence.fragments;
 
 import android.Manifest;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 
 import com.bleyl.recurrence.R;
 import com.bleyl.recurrence.database.CalendarHelper;
+import com.bleyl.recurrence.utils.PermissionUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,9 +25,19 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         addPreferencesFromResource(R.xml.prefs);
         updatePreferenceSummary();
 
+        /* Note: Checkbox is here only to ask permission, job could have been done ui-side with only
+         * the listPreference. For now, I can't manage to have only a single listPreference that:
+         * 1/ on click, ask for permission
+         * 2/ if permission is given, update the calendar list
+         * 3/ show the updated calendar list (issue is here)
+         * 4/ restore the reminders of given calendar when non-default calendar is chosen
+         * The drawback of the current fallback code is that when the checkbox is checked, the
+         * permission is asked at each PreferenceFragment creation, instead of on click on the
+         * listPreference (that could have been the right way).
+         */
         setCheckBoxSyncCalendarsAction();
         final CheckBoxPreference checkboxPreference = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
-        allowSyncFunctionality(checkboxPreference.isChecked());
+        enableSyncFunctionality(checkboxPreference.isChecked());
     }
 
     public void updatePreferenceSummary() {
@@ -44,13 +52,13 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         nagPreference.setSummary(String.format("%s %s", nagMinutesText, nagSecondsText));
     }
 
-
     public void updateCalendarsList() {
         final ListPreference listPreference = (ListPreference) findPreference("listSyncCalendar");
 
-        HashMap<String, String> calendarsList = new CalendarHelper().calendarsHashMap(getActivity());
+        HashMap<String, String> calendarsList = new CalendarHelper().getCalendarsList(getActivity());
         List<CharSequence> entries = new ArrayList<>(Arrays.asList(listPreference.getEntries()));
         List<CharSequence> entryValues = new ArrayList<>(Arrays.asList(listPreference.getEntryValues()));
+
         for (Map.Entry<String, String> item : calendarsList.entrySet()) {
             entries.add(item.getKey());
             entryValues.add(item.getValue());
@@ -61,52 +69,44 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         listPreference.setEntryValues(entryValues.toArray(new CharSequence[entryValues.size()]));
     }
 
-    public void allowSyncFunctionality(Boolean allowed) {
+    public void enableSyncFunctionality(Boolean allowed) {
         findPreference("listSyncCalendar").setEnabled(allowed);
         if (allowed) updateCalendarsList();
     }
 
-    public int PERM_REQUEST_ID = 0;
-    public void syncCalendarPermissionCallback(String[] permissions, int[] grantResults) {
-        boolean allAllowed = (grantResults[0] == 1) && (grantResults[1] == 1);
-        allowSyncFunctionality(allAllowed);
-
-        if (!allAllowed) {
-            CheckBoxPreference checkboxPreference = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
-            checkboxPreference.setChecked(false);
-        }
-    }
-
     public void setCheckBoxSyncCalendarsAction() {
+        final PreferenceFragment that = this;
         final CheckBoxPreference checkboxPreference = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
         checkboxPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
                 if (checkboxPreference.isChecked()) {
-                    String[] permissions = new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR};
-                    List<String> permissionsRequired = new ArrayList();
-
-                    for(String permission : permissions) {
-                        if (ContextCompat.checkSelfPermission(getActivity(), permission) != PackageManager.PERMISSION_GRANTED) {
-                            permissionsRequired.add(permission);
-                        }
-                    }
-
-                    if (permissionsRequired.size() == 0) {
-                        int[] grantResults = new int[permissions.length];
-                        Arrays.fill(grantResults, 1);
-                        syncCalendarPermissionCallback(permissions, grantResults);
-                        return true;
-                    }
-
-                    ActivityCompat.requestPermissions(getActivity(), permissions, PERM_REQUEST_ID);
+                    String[] permissions = new String[]{Manifest.permission.READ_CALENDAR};
+                    PermissionUtil
+                        .getInstance()
+                        .allPermissionsGrantedOrAskForThem(
+                            getActivity(),
+                            that,
+                            R.string.perm_cb_build_calendar_pref_list,
+                            permissions
+                        );
                     return true;
                 } else {
-                    allowSyncFunctionality(false);
+                    enableSyncFunctionality(false);
                 }
 
                 return true;
             }
         });
+    }
+
+    public void getCalendarsListPermissionCallback(String[] permissions, int[] grantResults) {
+        boolean allAllowed = PermissionUtil.allGranted(grantResults);
+        enableSyncFunctionality(allAllowed);
+
+        if (!allAllowed) {
+            CheckBoxPreference checkboxPreference = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
+            checkboxPreference.setChecked(false);
+        }
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

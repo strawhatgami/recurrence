@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 import com.bleyl.recurrence.R;
 import com.bleyl.recurrence.fragments.PreferenceFragment;
+import com.bleyl.recurrence.utils.PermissionUtil;
 
 public class PreferenceActivity extends AppCompatActivity {
 
@@ -34,10 +35,6 @@ public class PreferenceActivity extends AppCompatActivity {
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
-        PreferenceFragment preferenceFragment = (PreferenceFragment) getFragmentManager().findFragmentByTag(preferenceFragmentTag);
-
-        if (requestCode == preferenceFragment.PERM_REQUEST_ID){
-            preferenceFragment.syncCalendarPermissionCallback(permissions, grantResults);
-        }
+        PermissionUtil.getInstance().onRequestPermissionsResult(this, requestCode, permissions, grantResults);
     }
 }
