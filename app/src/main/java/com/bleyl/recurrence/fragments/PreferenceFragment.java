@@ -52,12 +52,19 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         nagPreference.setSummary(String.format("%s %s", nagMinutesText, nagSecondsText));
     }
 
+    private String listPreferenceUpdatedValue;
     public void updateCalendarsList() {
+        final PreferenceFragment that = this;
         final ListPreference listPreference = (ListPreference) findPreference("listSyncCalendar");
 
         HashMap<String, String> calendarsList = new CalendarHelper().getCalendarsList(getActivity());
-        List<CharSequence> entries = new ArrayList<>(Arrays.asList(listPreference.getEntries()));
-        List<CharSequence> entryValues = new ArrayList<>(Arrays.asList(listPreference.getEntryValues()));
+
+        List<CharSequence> entries = new ArrayList<CharSequence>(Arrays.asList(
+            getActivity().getResources().getStringArray(R.array.defaultCalendarList)
+        ));
+        List<CharSequence> entryValues = new ArrayList<CharSequence>(Arrays.asList(
+            getActivity().getResources().getStringArray(R.array.defaultCalendarValuesList)
+        ));
 
         for (Map.Entry<String, String> item : calendarsList.entrySet()) {
             entries.add(item.getKey());
@@ -65,8 +72,34 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         }
 
         listPreference.setEntries(entries.toArray(new CharSequence[entries.size()]));
-        listPreference.setDefaultValue("@strings/default_calendar");
         listPreference.setEntryValues(entryValues.toArray(new CharSequence[entryValues.size()]));
+        listPreference.setDefaultValue(getActivity().getResources().getString(R.string.default_calendar_value));
+
+        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                listPreferenceUpdatedValue = (String) newValue;
+                if (!listPreferenceUpdatedValue.equals(getActivity().getResources().getString(R.string.default_calendar_value))){
+                    String[] permissions = new String[]{Manifest.permission.READ_CALENDAR};
+                    PermissionUtil
+                        .getInstance()
+                        .allPermissionsGrantedOrAskForThem(
+                            getActivity(),
+                            that,
+                            R.string.perm_cb_restore_from_calendar,
+                            permissions
+                        );
+                }
+
+                return true;
+            }
+        });
+    }
+
+    public void restoreFromCalendarPermissionCallback(String[] permissions, int[] grantResults) {
+        boolean allAllowed = PermissionUtil.allGranted(grantResults);
+        if (allAllowed) {
+            CalendarHelper.restoreFromCalendar(getActivity(), listPreferenceUpdatedValue);
+        }
     }
 
     public void enableSyncFunctionality(Boolean allowed) {
