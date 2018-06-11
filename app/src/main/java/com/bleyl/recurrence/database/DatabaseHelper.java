@@ -37,6 +37,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COL_ICON = "ICON";
     public static final String COL_COLOUR = "COLOUR";
     public static final String COL_INTERVAL = "INTERVAL";
+    public static final String COL_SYNC_ID = "SYNC_ID";
 
     private static final String ICON_TABLE = "ICONS";
     public static final String COL_ICON_ID = "ID";
@@ -90,6 +91,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_NUMBER_SHOWN + " INTEGER, "
                 + COL_ICON + " TEXT, "
                 + COL_COLOUR + " TEXT, "
+                + COL_SYNC_ID + " INTEGER, "
                 + COL_INTERVAL + " INTEGER) ");
 
         database.execSQL("CREATE TABLE "+ ICON_TABLE + " ("
@@ -231,12 +233,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = database.rawQuery("SELECT * FROM " + REMINDER_TABLE
                 + " WHERE " + COL_ID + " = ? LIMIT 1", new String[]{String.valueOf(id)});
 
-        cursor.moveToFirst();
-        Reminder reminder = Reminder.createFromCursor(cursor);
+        Reminder reminder;
+        if (cursor.moveToFirst()) {
+            reminder = Reminder.createFromCursor(cursor);
+        } else {
+            reminder = new Reminder();
+        }
         if (reminder.getRepeatType() == Reminder.SPECIFIC_DAYS)
             getDaysOfWeek(reminder, database);
         cursor.close();
         return reminder;
+    }
+
+    public int getIdFromSyncId(String syncId) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        Cursor cursor = database.rawQuery("SELECT " + COL_ID + " FROM " + REMINDER_TABLE + " WHERE " + COL_SYNC_ID + " = ? LIMIT 1", new String[]{syncId});
+
+        int id = Reminder.DEFAULT_ID;
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID));
+        }
+        cursor.close();
+
+        return id;
     }
 
     public void deleteReminder(Reminder reminder) {

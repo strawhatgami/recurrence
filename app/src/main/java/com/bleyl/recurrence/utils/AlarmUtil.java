@@ -28,6 +28,14 @@ public class AlarmUtil {
         }
     }
 
+    public static void setAlarm(Context context, Reminder reminder) {
+        Calendar calendar = DateAndTimeUtil.parseDateAndTime(reminder.getDateAndTime());
+        calendar.set(Calendar.SECOND, 0);
+        Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+        alarmIntent.putExtra("QUIET", DateAndTimeUtil.isNow(calendar));
+        AlarmUtil.setAlarm(context, alarmIntent, reminder.getId(), calendar);
+    }
+
     public static void cancelAlarm(Context context, Intent intent, int reminderId) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, reminderId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
