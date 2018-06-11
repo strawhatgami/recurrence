@@ -8,6 +8,7 @@
   </string-array>
   <string-array name="permissionsCallbacksList">
     <item>@string/perm_cb_build_calendar_pref_list</item>
+    <item>@string/perm_cb_delete_reminder_in_calendar</item>
     <item>@string/perm_cb_write_reminder_in_calendar</item>
   </string-array>
 </resources>

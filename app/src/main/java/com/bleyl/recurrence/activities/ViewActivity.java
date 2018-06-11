@@ -1,13 +1,16 @@
 package com.bleyl.recurrence.activities;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
@@ -24,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bleyl.recurrence.database.CalendarHelper;
 import com.bleyl.recurrence.database.DatabaseHelper;
 import com.bleyl.recurrence.models.Reminder;
 import com.bleyl.recurrence.R;
@@ -33,6 +37,7 @@ import com.bleyl.recurrence.receivers.SnoozeReceiver;
 import com.bleyl.recurrence.utils.AlarmUtil;
 import com.bleyl.recurrence.utils.DateAndTimeUtil;
 import com.bleyl.recurrence.utils.NotificationUtil;
+import com.bleyl.recurrence.utils.PermissionUtil;
 import com.bleyl.recurrence.utils.TextFormatUtil;
 
 import java.util.Calendar;
@@ -166,6 +171,33 @@ public class ViewActivity extends AppCompatActivity {
         AlarmUtil.cancelAlarm(this, alarmIntent, reminder.getId());
         Intent snoozeIntent = new Intent(this, SnoozeReceiver.class);
         AlarmUtil.cancelAlarm(this, snoozeIntent, reminder.getId());
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Boolean saveInCalendar = sharedPreferences.getBoolean("checkBoxSyncCalendars", false);
+        String noCalendarId = this.getResources().getString(R.string.default_calendar_value);
+        String calendarId = sharedPreferences.getString("listSyncCalendar", noCalendarId);
+        if (saveInCalendar && !calendarId.equals(noCalendarId) && reminder.getSyncId() != Reminder.DEFAULT_ID) {
+            String[] permissions = new String[]{Manifest.permission.WRITE_CALENDAR};
+            PermissionUtil
+                .getInstance()
+                .allPermissionsGrantedOrAskForThem(
+                    this,
+                    this,
+                    R.string.perm_cb_delete_reminder_in_calendar,
+                    permissions
+                );
+        } else {
+            finish();
+        }
+
+    }
+
+    public void actionDeletePermissionCallback(String[] permissions, int[] grantResults) {
+        boolean allAllowed = PermissionUtil.allGranted(grantResults);
+        if (allAllowed) {
+            CalendarHelper.syncReminderDeletionInCalendar(this, reminder);
+        }
+
         finish();
     }
 

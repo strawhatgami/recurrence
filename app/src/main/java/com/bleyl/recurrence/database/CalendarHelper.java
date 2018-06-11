@@ -105,6 +105,16 @@ public class CalendarHelper{
     }
   }
 
+  @SuppressLint("MissingPermission") // permission is asked by the caller
+  public static void syncReminderDeletionInCalendar(Context context, Reminder reminder) {
+    final ContentResolver cr = context.getContentResolver();
+
+    if (reminder.getSyncId() == Reminder.DEFAULT_ID) return;
+
+    Uri uri = ContentUris.withAppendedId(Events.CONTENT_URI, reminder.getSyncId());
+    cr.delete(uri,null, null);
+  }
+
   public HashMap<String, String> getCalendarsList(Context context) {
     final String[] EVENT_PROJECTION = new String[]{
         Calendars._ID,
