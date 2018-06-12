@@ -91,7 +91,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COL_NUMBER_SHOWN + " INTEGER, "
                 + COL_ICON + " TEXT, "
                 + COL_COLOUR + " TEXT, "
-                + COL_SYNC_ID + " INTEGER, "
+                + COL_SYNC_ID + " TEXT, "
                 + COL_INTERVAL + " INTEGER) ");
 
         database.execSQL("CREATE TABLE "+ ICON_TABLE + " ("

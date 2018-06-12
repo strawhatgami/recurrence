@@ -90,7 +90,7 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
     private int timesToShow = Reminder.DEFAULT_TIMES_TO_SHOW;
     private int repeatType = Reminder.DOES_NOT_REPEAT;
     private int id;
-    private int syncId = Reminder.DEFAULT_ID;
+    private String syncId = Reminder.DEFAULT_SYNC_ID;
     private int interval = Reminder.DEFAULT_INTERVAL;
     boolean updateReminderInCalendar = false;
 
