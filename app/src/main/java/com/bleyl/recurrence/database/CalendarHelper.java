@@ -1,7 +1,6 @@
 package com.bleyl.recurrence.database;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.UUID;
 
 public class CalendarHelper{
   private static String COL_BLOB = Events.EVENT_LOCATION;
@@ -39,7 +39,7 @@ public class CalendarHelper{
      */
     DateFormat formatter = new SimpleDateFormat("yyyyMMddHHmm");
 
-    int syncId = cursor.getInt(cursor.getColumnIndexOrThrow(Events.ORIGINAL_ID));
+    String syncId = cursor.getString(cursor.getColumnIndexOrThrow(Events.UID_2445));
     String title = cursor.getString(cursor.getColumnIndexOrThrow(Events.TITLE));
     String content = cursor.getString(cursor.getColumnIndexOrThrow(Events.DESCRIPTION));
     String dateAndTime;
@@ -47,13 +47,6 @@ public class CalendarHelper{
     int intColor = cursor.getInt(cursor.getColumnIndexOrThrow(Events.EVENT_COLOR));
     long longDateAndTime = cursor.getLong(cursor.getColumnIndexOrThrow(Events.DTSTART));
 
-    /* The value stored in Events.ORIGINAL_ID is in fact Events._ID, but some reminders (the
-     * created but never updated) have not their Events.ORIGINAL_ID set.
-     * So we use this fallback solution.
-     */
-    if (syncId == 0 || syncId == Reminder.DEFAULT_ID){
-      syncId = cursor.getInt(cursor.getColumnIndexOrThrow(Events._ID));
-    }
     if (title == null) title = "";
     if (content == null) content = "";
     if (longDateAndTime == 0) dateAndTime = DateAndTimeUtil.toStringDateAndTime(Calendar.getInstance());
@@ -119,8 +112,7 @@ public class CalendarHelper{
     final DatabaseHelper database = DatabaseHelper.getInstance(context);
 
     String[] mProjection = {
-        Events._ID,
-        Events.ORIGINAL_ID,
+        Events.UID_2445,
         Events.TITLE,
         Events.DESCRIPTION,
         Events.DTSTART,
@@ -129,15 +121,15 @@ public class CalendarHelper{
     };
 
     Uri uri = Events.CONTENT_URI;
-    String selection = Events.CALENDAR_ID + " = ? AND "
-        + Events.ORIGINAL_ID + " IS NOT NULL AND "
+    String where = Events.CALENDAR_ID + " = ? AND "
+        + Events.UID_2445 + " IS NOT NULL AND "
         + Events.TITLE + " IS NOT NULL AND "
         + COL_BLOB + " IS NOT NULL";
 
     String[] selectionArgs = new String[]{calendarId};
 
     try {
-      cursor = cr.query(uri, mProjection, selection, selectionArgs, null);
+      cursor = cr.query(uri, mProjection, where, selectionArgs, null);
     } catch (SecurityException e) {
       return reminders;
     }
@@ -178,7 +170,7 @@ public class CalendarHelper{
   }
 
   @SuppressLint("MissingPermission") // permission is asked by the caller
-  public static int syncUpdatedReminderInCalendar(Context context, Reminder reminder) {
+  public static String syncUpdatedReminderInCalendar(Context context, Reminder reminder) {
     final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     final String calendarId = sharedPreferences.getString("listSyncCalendar", "");
 
@@ -208,7 +200,6 @@ public class CalendarHelper{
     vendorFields.put("foreverState", reminder.getForeverState());
     vendorFields.put("daysOfWeek", gson.toJson(reminder.getDaysOfWeek()));
 
-    values.put(Events.ORIGINAL_ID, reminder.getId());
     values.put(Events.CALENDAR_ID, calendarId);
     values.put(Events.TITLE, reminder.getTitle());
     values.put(Events.DESCRIPTION, reminder.getContent());
@@ -218,34 +209,30 @@ public class CalendarHelper{
     values.put(Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
     values.put(COL_BLOB, gson.toJson(vendorFields));
 
-
-    if (reminder.getSyncId() == Reminder.DEFAULT_ID) {
+    String syncId = reminder.getSyncId();
+    if (syncId.equals(Reminder.DEFAULT_SYNC_ID)) {
       // The reminder is a new one, let's get an id for it. Values will be filled after.
       // This must be called before database.addNotification() because it changes the reminder id
-      Uri resultUri = cr.insert(Events.CONTENT_URI, values);
-
-      if (resultUri == null) return reminder.getSyncId();
-
-      return (int) ContentUris.parseId(resultUri);
+      syncId = UUID.randomUUID().toString();
+      values.put(Events.UID_2445, syncId);
+      cr.insert(Events.CONTENT_URI, values);
     } else {
-      values.put(Events.ORIGINAL_ID, reminder.getSyncId());
-      Uri uri = ContentUris.withAppendedId(Events.CONTENT_URI, reminder.getSyncId());
-      cr.update(uri, values, null, null);
-      return reminder.getSyncId();
+      values.put(Events.UID_2445, syncId);
+      String where = Events.UID_2445 + " = ?";
+      String[] selectionArgs = new String[]{syncId};
+      cr.update(Events.CONTENT_URI, values, where, selectionArgs);
     }
+
+    return syncId;
   }
 
   @SuppressLint("MissingPermission") // permission is asked by the caller
   public static void syncReminderDeletionInCalendar(Context context, Reminder reminder) {
     final ContentResolver cr = context.getContentResolver();
 
-    if (reminder.getSyncId() == Reminder.DEFAULT_ID) return;
+    if (reminder.getSyncId().equals(Reminder.DEFAULT_SYNC_ID)) return;
 
-    // The "ContentUris.withAppendedId" method doesn't work here
-    cr.delete(Events.CONTENT_URI,
-      Events._ID + " = ? OR " + Events.ORIGINAL_ID + " = ?",
-      new String[]{String.valueOf(reminder.getSyncId()), String.valueOf(reminder.getSyncId())}
-    );
+    cr.delete(Events.CONTENT_URI, Events.UID_2445 + " = ?", new String[]{reminder.getSyncId()});
   }
 
   public HashMap<String, String> getCalendarsList(Context context) {

@@ -20,9 +20,10 @@ public class Reminder {
     public static final int DEFAULT_TIMES_SHOWN = 0;
     public static final int DEFAULT_TIMES_TO_SHOW = 1;
     public static final int DEFAULT_INTERVAL = 1;
+    public static final String DEFAULT_SYNC_ID = "";
 
     private int id = DEFAULT_ID;
-    private int syncId = DEFAULT_ID;
+    private String syncId = DEFAULT_SYNC_ID;
     private String title;
     private String content;
     private String dateAndTime;
@@ -44,11 +45,11 @@ public class Reminder {
         return this;
     }
 
-    public int getSyncId() {
+    public String getSyncId() {
         return syncId;
     }
 
-    public Reminder setSyncId(int syncId) {
+    public Reminder setSyncId(String syncId) {
         this.syncId = syncId;
         return this;
     }

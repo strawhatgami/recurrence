@@ -208,7 +208,7 @@ public class ViewActivity extends AppCompatActivity {
         Boolean saveInCalendar = sharedPreferences.getBoolean("checkBoxSyncCalendars", false);
         String noCalendarId = this.getResources().getString(R.string.default_calendar_value);
         String calendarId = sharedPreferences.getString("listSyncCalendar", noCalendarId);
-        if (saveInCalendar && !calendarId.equals(noCalendarId) && reminder.getSyncId() != Reminder.DEFAULT_ID) {
+        if (saveInCalendar && !calendarId.equals(noCalendarId) && !reminder.getSyncId().equals(Reminder.DEFAULT_SYNC_ID)) {
             String[] permissions = new String[]{Manifest.permission.WRITE_CALENDAR};
             PermissionUtil
                 .getInstance()

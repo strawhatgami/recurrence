@@ -242,14 +242,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         reminder.setIcon(cursor.getString(cursor.getColumnIndexOrThrow(COL_ICON)));
         reminder.setColour(cursor.getString(cursor.getColumnIndexOrThrow(COL_COLOUR)));
         reminder.setInterval(cursor.getInt(cursor.getColumnIndexOrThrow(COL_INTERVAL)));
-        reminder.setSyncId(cursor.getInt(cursor.getColumnIndexOrThrow(COL_SYNC_ID)));
+        reminder.setSyncId(cursor.getString(cursor.getColumnIndexOrThrow(COL_SYNC_ID)));
 
         return reminder;
     }
 
-    public int getIdFromSyncId(int syncId) {
+    public int getIdFromSyncId(String syncId) {
         SQLiteDatabase database = this.getReadableDatabase();
-        Cursor cursor = database.rawQuery("SELECT " + COL_ID + " FROM " + NOTIFICATION_TABLE + " WHERE " + COL_SYNC_ID + " = ? LIMIT 1", new String[]{String.valueOf(syncId)});
+        Cursor cursor = database.rawQuery("SELECT " + COL_ID + " FROM " + NOTIFICATION_TABLE + " WHERE " + COL_SYNC_ID + " = ? LIMIT 1", new String[]{syncId});
 
         int id = Reminder.DEFAULT_ID;
         if (cursor.moveToFirst()) {
