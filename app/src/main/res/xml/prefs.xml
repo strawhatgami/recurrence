@@ -36,16 +36,16 @@
             android:key="nagInterval"
             android:title="@string/nagging_interval"/>
         <CheckBoxPreference
-          android:key="checkBoxSyncCalendars"
-          android:title="@string/calendar_sync_checkbox_title"
-          android:summary="@string/calendar_sync_checkbox_summary"/>
+            android:key="checkBoxSyncCalendars"
+            android:title="@string/calendar_sync_checkbox_title"
+            android:summary="@string/calendar_sync_checkbox_summary"/>
         <ListPreference
-          android:key="listSyncCalendar"
-          android:defaultValue="@string/default_calendar_value"
-          android:title="@string/calendar_list_title"
-          android:dialogTitle="@string/calendar_list_summary"
-          android:summary="@string/calendar_list_summary"
-          android:entries="@array/defaultCalendarList"
-          android:entryValues="@array/defaultCalendarValuesList" />
+            android:key="listSyncCalendar"
+            android:defaultValue="@string/default_calendar_value"
+            android:title="@string/calendar_list_title"
+            android:dialogTitle="@string/calendar_list_summary"
+            android:summary="@string/calendar_list_summary"
+            android:entries="@array/defaultCalendarList"
+            android:entryValues="@array/defaultCalendarValuesList" />
     </PreferenceCategory>
 </PreferenceScreen>
