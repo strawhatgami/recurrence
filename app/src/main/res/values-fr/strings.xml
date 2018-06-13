@@ -7,6 +7,7 @@
     <string name="checkbox_sound">Son</string>
     <string name="checkbox_LED">LED</string>
     <string name="checkbox_ongoing">Notification persistante</string>
+    <string name="ongoing_detail">Bloquer la suppression de la notification</string>
     <string name="snooze">Snooze</string>
     <string name="snooze_detail">Ajouter une action de rappel à la notification</string>
     <string name="hide_snooze_activity">Toujours utiliser l\'interval de rappel par défaut</string>
@@ -27,6 +28,7 @@
     <string name="action_about">À propos</string>
     <string name="action_show_now">Montrer maintenant</string>
     <string name="action_mark_as_done">Marquer comme fait</string>
+    <string name="action_share">Partager</string>
     <string name="delete_confirmation">Êtes-vous certain de vouloir supprimer cette notification?</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
