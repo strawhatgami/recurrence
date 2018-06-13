@@ -224,7 +224,7 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
                 .allowUserColorInputAlpha(false)
                 .customColors(colours, null)
                 .preselect(Color.parseColor(colour))
-                .show();
+                .show(this);
     }
 
     @Override
