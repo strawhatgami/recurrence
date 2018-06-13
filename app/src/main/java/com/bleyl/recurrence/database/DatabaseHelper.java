@@ -225,19 +225,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getReadableDatabase();
         Cursor cursor = database.rawQuery("SELECT * FROM " + NOTIFICATION_TABLE + " WHERE " + COL_ID + " = ? LIMIT 1", new String[]{String.valueOf(id)});
 
-        cursor.moveToFirst();
         Reminder reminder = new Reminder();
-        reminder.setId(id);
-        reminder.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(COL_TITLE)));
-        reminder.setContent(cursor.getString(cursor.getColumnIndexOrThrow(COL_CONTENT)));
-        reminder.setDateAndTime(cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE_AND_TIME)));
-        reminder.setRepeatType(cursor.getInt(cursor.getColumnIndexOrThrow(COL_REPEAT_TYPE)));
-        reminder.setForeverState(cursor.getString(cursor.getColumnIndexOrThrow(COL_FOREVER)));
-        reminder.setNumberToShow(cursor.getInt(cursor.getColumnIndexOrThrow(COL_NUMBER_TO_SHOW)));
-        reminder.setNumberShown(cursor.getInt(cursor.getColumnIndexOrThrow(COL_NUMBER_SHOWN)));
-        reminder.setIcon(cursor.getString(cursor.getColumnIndexOrThrow(COL_ICON)));
-        reminder.setColour(cursor.getString(cursor.getColumnIndexOrThrow(COL_COLOUR)));
-        reminder.setInterval(cursor.getInt(cursor.getColumnIndexOrThrow(COL_INTERVAL)));
+        if (cursor.moveToFirst()) {
+            reminder.setId(id);
+            reminder.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(COL_TITLE)));
+            reminder.setContent(cursor.getString(cursor.getColumnIndexOrThrow(COL_CONTENT)));
+            reminder.setDateAndTime(cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE_AND_TIME)));
+            reminder.setRepeatType(cursor.getInt(cursor.getColumnIndexOrThrow(COL_REPEAT_TYPE)));
+            reminder.setForeverState(cursor.getString(cursor.getColumnIndexOrThrow(COL_FOREVER)));
+            reminder.setNumberToShow(cursor.getInt(cursor.getColumnIndexOrThrow(COL_NUMBER_TO_SHOW)));
+            reminder.setNumberShown(cursor.getInt(cursor.getColumnIndexOrThrow(COL_NUMBER_SHOWN)));
+            reminder.setIcon(cursor.getString(cursor.getColumnIndexOrThrow(COL_ICON)));
+            reminder.setColour(cursor.getString(cursor.getColumnIndexOrThrow(COL_COLOUR)));
+            reminder.setInterval(cursor.getInt(cursor.getColumnIndexOrThrow(COL_INTERVAL)));
+        }
         cursor.close();
 
         if (reminder.getRepeatType() == Reminder.SPECIFIC_DAYS) {
