@@ -355,18 +355,18 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
         DatabaseHelper database = DatabaseHelper.getInstance(this);
 
         Reminder reminder = new Reminder()
-            .setId(id)
-            .setSyncId(syncId)
-            .setTitle(titleEditText.getText().toString())
-            .setContent(contentEditText.getText().toString())
-            .setDateAndTime(DateAndTimeUtil.toStringDateAndTime(calendar))
-            .setRepeatType(repeatType)
-            .setForeverState(Boolean.toString(foreverSwitch.isChecked()))
-            .setNumberToShow(timesToShow)
-            .setNumberShown(timesShown)
-            .setIcon(icon)
-            .setColour(colour)
-            .setInterval(interval);
+                .setId(id)
+                .setSyncId(syncId)
+                .setTitle(titleEditText.getText().toString())
+                .setContent(contentEditText.getText().toString())
+                .setDateAndTime(DateAndTimeUtil.toStringDateAndTime(calendar))
+                .setRepeatType(repeatType)
+                .setForeverState(Boolean.toString(foreverSwitch.isChecked()))
+                .setNumberToShow(timesToShow)
+                .setNumberShown(timesShown)
+                .setIcon(icon)
+                .setColour(colour)
+                .setInterval(interval);
 
         if (updateReminderInCalendar) {
             // If the reminder is a new one, This sets its sync id.

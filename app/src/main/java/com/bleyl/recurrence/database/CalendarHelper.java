@@ -29,242 +29,242 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 public class CalendarHelper{
-  private static String COL_BLOB = Events.EVENT_LOCATION;
+    private static String COL_BLOB = Events.EVENT_LOCATION;
 
-  private static Reminder getReminderFromEventDB(Gson gson, Context context,  Cursor cursor) {
-    /* Fields non widely implemented as SYNC_DATAx, or complex to handle as RRULE, are put in a
-     * widely implemented (but not used by Recurrence) field (COL_BLOB) as a serialized JSON object.
-     * We go that way to ensure compatibility with a wide variety of sync tools (Exchange, Nextcloud, ...).
-     * TODO future improvement: put some of the fields in an RRULE, maybe with https://github.com/mangstadt/biweekly ?
-     */
-    DateFormat formatter = new SimpleDateFormat("yyyyMMddHHmm");
+    private static Reminder getReminderFromEventDB(Gson gson, Context context,  Cursor cursor) {
+        /* Fields non widely implemented as SYNC_DATAx, or complex to handle as RRULE, are put in a
+         * widely implemented (but not used by Recurrence) field (COL_BLOB) as a serialized JSON object.
+         * We go that way to ensure compatibility with a wide variety of sync tools (Exchange, Nextcloud, ...).
+         * TODO future improvement: put some of the fields in an RRULE, maybe with https://github.com/mangstadt/biweekly ?
+         */
+        DateFormat formatter = new SimpleDateFormat("yyyyMMddHHmm");
 
-    String syncId = cursor.getString(cursor.getColumnIndexOrThrow(Events.UID_2445));
-    String title = cursor.getString(cursor.getColumnIndexOrThrow(Events.TITLE));
-    String content = cursor.getString(cursor.getColumnIndexOrThrow(Events.DESCRIPTION));
-    String dateAndTime;
-    String color;
-    int intColor = cursor.getInt(cursor.getColumnIndexOrThrow(Events.EVENT_COLOR));
-    long longDateAndTime = cursor.getLong(cursor.getColumnIndexOrThrow(Events.DTSTART));
+        String syncId = cursor.getString(cursor.getColumnIndexOrThrow(Events.UID_2445));
+        String title = cursor.getString(cursor.getColumnIndexOrThrow(Events.TITLE));
+        String content = cursor.getString(cursor.getColumnIndexOrThrow(Events.DESCRIPTION));
+        String dateAndTime;
+        String color;
+        int intColor = cursor.getInt(cursor.getColumnIndexOrThrow(Events.EVENT_COLOR));
+        long longDateAndTime = cursor.getLong(cursor.getColumnIndexOrThrow(Events.DTSTART));
 
-    if (title == null) title = "";
-    if (content == null) content = "";
-    if (longDateAndTime == 0) dateAndTime = DateAndTimeUtil.toStringDateAndTime(Calendar.getInstance());
-    else {
-      dateAndTime = formatter.format(longDateAndTime);
-    }
-    if (intColor == 0) color = context.getString(R.string.default_colour_value);
-    else color = String.format("#%06X", (0xFFFFFF & intColor));
+        if (title == null) title = "";
+        if (content == null) content = "";
+        if (longDateAndTime == 0) dateAndTime = DateAndTimeUtil.toStringDateAndTime(Calendar.getInstance());
+        else {
+            dateAndTime = formatter.format(longDateAndTime);
+        }
+        if (intColor == 0) color = context.getString(R.string.default_colour_value);
+        else color = String.format("#%06X", (0xFFFFFF & intColor));
 
-    String jsonStr = cursor.getString(cursor.getColumnIndexOrThrow(COL_BLOB));
-    String icon = context.getString(R.string.default_icon_value);
-    String foreverState = "false";
-    int repeatType = Reminder.DOES_NOT_REPEAT;
-    int numberToShow = Reminder.DEFAULT_TIMES_TO_SHOW;
-    int numberShown = Reminder.DEFAULT_TIMES_SHOWN;
-    int interval = Reminder.DEFAULT_INTERVAL;
-    boolean[] daysOfWeek = new boolean[7];
+        String jsonStr = cursor.getString(cursor.getColumnIndexOrThrow(COL_BLOB));
+        String icon = context.getString(R.string.default_icon_value);
+        String foreverState = "false";
+        int repeatType = Reminder.DOES_NOT_REPEAT;
+        int numberToShow = Reminder.DEFAULT_TIMES_TO_SHOW;
+        int numberShown = Reminder.DEFAULT_TIMES_SHOWN;
+        int interval = Reminder.DEFAULT_INTERVAL;
+        boolean[] daysOfWeek = new boolean[7];
 
-    Map<String, String> vendorFields = null;
-    try {
-      vendorFields = gson.fromJson(jsonStr, Map.class);
-    } catch (com.google.gson.JsonSyntaxException ignored) {
-    }
+        Map<String, String> vendorFields = null;
+        try {
+            vendorFields = gson.fromJson(jsonStr, Map.class);
+        } catch (com.google.gson.JsonSyntaxException ignored) {
+        }
 
-    if (vendorFields != null){
-      if (vendorFields.get("icon") != null) icon = vendorFields.get("icon");
-      if (vendorFields.get("foreverState") != null) foreverState = vendorFields.get("foreverState");
-      if (vendorFields.get("repeatType") != null && Integer.parseInt(vendorFields.get("repeatType")) > 0) repeatType = Integer.parseInt(vendorFields.get("repeatType"));
-      if (vendorFields.get("numberToShow") != null && Integer.parseInt(vendorFields.get("numberToShow")) > 0) numberToShow = Integer.parseInt(vendorFields.get("numberToShow"));
-      if (vendorFields.get("numberShown") != null && Integer.parseInt(vendorFields.get("numberShown")) > 0) numberShown = Integer.parseInt(vendorFields.get("numberShown"));
-      if (vendorFields.get("interval") != null && Integer.parseInt(vendorFields.get("interval")) > 0) interval = Integer.parseInt(vendorFields.get("interval"));
+        if (vendorFields != null){
+            if (vendorFields.get("icon") != null) icon = vendorFields.get("icon");
+            if (vendorFields.get("foreverState") != null) foreverState = vendorFields.get("foreverState");
+            if (vendorFields.get("repeatType") != null && Integer.parseInt(vendorFields.get("repeatType")) > 0) repeatType = Integer.parseInt(vendorFields.get("repeatType"));
+            if (vendorFields.get("numberToShow") != null && Integer.parseInt(vendorFields.get("numberToShow")) > 0) numberToShow = Integer.parseInt(vendorFields.get("numberToShow"));
+            if (vendorFields.get("numberShown") != null && Integer.parseInt(vendorFields.get("numberShown")) > 0) numberShown = Integer.parseInt(vendorFields.get("numberShown"));
+            if (vendorFields.get("interval") != null && Integer.parseInt(vendorFields.get("interval")) > 0) interval = Integer.parseInt(vendorFields.get("interval"));
 
-      String daysOfWeekStr = vendorFields.get("daysOfWeek");
-      try {
-        daysOfWeek = gson.fromJson(daysOfWeekStr, boolean[].class);
-      } catch (Exception ignored) {
-      }
-    }
+            String daysOfWeekStr = vendorFields.get("daysOfWeek");
+            try {
+              daysOfWeek = gson.fromJson(daysOfWeekStr, boolean[].class);
+            } catch (Exception ignored) {
+            }
+        }
 
-    Reminder reminder = new Reminder()
-        .setSyncId(syncId)
-        .setTitle(title)
-        .setContent(content)
-        .setDateAndTime(dateAndTime)
-        .setColour(color)
-        .setIcon(icon)
-        .setForeverState(foreverState)
-        .setNumberToShow(numberToShow)
-        .setNumberShown(numberShown)
-        .setRepeatType(repeatType)
-        .setInterval(interval)
-        .setDaysOfWeek(daysOfWeek);
+        Reminder reminder = new Reminder()
+            .setSyncId(syncId)
+            .setTitle(title)
+            .setContent(content)
+            .setDateAndTime(dateAndTime)
+            .setColour(color)
+            .setIcon(icon)
+            .setForeverState(foreverState)
+            .setNumberToShow(numberToShow)
+            .setNumberShown(numberShown)
+            .setRepeatType(repeatType)
+            .setInterval(interval)
+            .setDaysOfWeek(daysOfWeek);
 
-    return reminder;
-  }
-
-  private static List<Reminder> getRemindersFromCalendar(Context context, String calendarId) {
-    List<Reminder> reminders = new ArrayList<>();
-
-    final Cursor cursor;
-    final ContentResolver cr = context.getContentResolver();
-    final Gson gson = new Gson();
-    final DatabaseHelper database = DatabaseHelper.getInstance(context);
-
-    String[] mProjection = {
-        Events.UID_2445,
-        Events.TITLE,
-        Events.DESCRIPTION,
-        Events.DTSTART,
-        Events.EVENT_COLOR,
-        COL_BLOB,
-    };
-
-    Uri uri = Events.CONTENT_URI;
-    String where = Events.CALENDAR_ID + " = ? AND "
-        + Events.UID_2445 + " IS NOT NULL AND "
-        + Events.TITLE + " IS NOT NULL AND "
-        + COL_BLOB + " IS NOT NULL";
-
-    String[] selectionArgs = new String[]{calendarId};
-
-    try {
-      cursor = cr.query(uri, mProjection, where, selectionArgs, null);
-    } catch (SecurityException e) {
-      return reminders;
+        return reminder;
     }
 
-    if (cursor.moveToFirst()) {
-      do {
-        Reminder reminder = getReminderFromEventDB(gson, context, cursor);
-        reminder.setId(database.getIdFromSyncId(reminder.getSyncId()));
-        reminders.add(reminder);
-      } while (cursor.moveToNext());
-    }
-    cursor.close();
+    private static List<Reminder> getRemindersFromCalendar(Context context, String calendarId) {
+        List<Reminder> reminders = new ArrayList<>();
 
-    return reminders;
-  }
+        final Cursor cursor;
+        final ContentResolver cr = context.getContentResolver();
+        final Gson gson = new Gson();
+        final DatabaseHelper database = DatabaseHelper.getInstance(context);
 
-  public static void restoreFromCalendar(Context context, String calendarId) {
-    DatabaseHelper database = DatabaseHelper.getInstance(context);
+        String[] mProjection = {
+            Events.UID_2445,
+            Events.TITLE,
+            Events.DESCRIPTION,
+            Events.DTSTART,
+            Events.EVENT_COLOR,
+            COL_BLOB,
+        };
 
-    List<Reminder> reminders = getRemindersFromCalendar(context, calendarId);
-    for (Reminder reminder : reminders){
-      int id = database.getIdFromSyncId(reminder.getSyncId());
-      if (id == Reminder.DEFAULT_ID) {
-        // There is no reminder with this sync id in db, create an id for it
-        id = database.getLastReminderId() + 1;
-      }
-      reminder.setId(id);
+        Uri uri = Events.CONTENT_URI;
+        String where = Events.CALENDAR_ID + " = ? AND "
+            + Events.UID_2445 + " IS NOT NULL AND "
+            + Events.TITLE + " IS NOT NULL AND "
+            + COL_BLOB + " IS NOT NULL";
 
-      database.addReminder(reminder);
-      if (reminder.getRepeatType() == Reminder.SPECIFIC_DAYS) {
-        database.addDaysOfWeek(reminder);
-      }
+        String[] selectionArgs = new String[]{calendarId};
 
-      AlarmUtil.setAlarm(context, reminder);
-    }
+        try {
+            cursor = cr.query(uri, mProjection, where, selectionArgs, null);
+        } catch (SecurityException e) {
+            return reminders;
+        }
 
-    database.close();
-  }
+        if (cursor.moveToFirst()) {
+            do {
+                Reminder reminder = getReminderFromEventDB(gson, context, cursor);
+                reminder.setId(database.getIdFromSyncId(reminder.getSyncId()));
+                reminders.add(reminder);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
 
-  @SuppressLint("MissingPermission") // permission is asked by the caller
-  public static String syncUpdatedReminderInCalendar(Context context, Reminder reminder) {
-    final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-    final String calendarId = sharedPreferences.getString("listSyncCalendar", "");
-
-    final Gson gson = new Gson();
-    final ContentResolver cr = context.getContentResolver();
-    final DateFormat formatter = new SimpleDateFormat("yyyyMMddHHmm");
-    ContentValues values = new ContentValues();
-
-    // android event DTSTART format: timestamp in ms (not ICal DTSTART)
-    String strDate = reminder.getDateAndTime();
-    long dtstart;
-    try {
-      dtstart = formatter.parse(strDate).getTime();
-    } catch (ParseException ex){
-      System.err.println(ex.toString());
-      return reminder.getSyncId();
+        return reminders;
     }
 
-    long color = Color.parseColor(reminder.getColour()); // add opacity
+    public static void restoreFromCalendar(Context context, String calendarId) {
+        DatabaseHelper database = DatabaseHelper.getInstance(context);
 
-    Map<String, String> vendorFields = new HashMap<>();
-    vendorFields.put("icon", reminder.getIcon());
-    vendorFields.put("repeatType", String.valueOf(reminder.getRepeatType()));
-    vendorFields.put("numberToShow", String.valueOf(reminder.getNumberToShow()));
-    vendorFields.put("numberShown", String.valueOf(reminder.getNumberShown()));
-    vendorFields.put("interval", String.valueOf(reminder.getInterval()));
-    vendorFields.put("foreverState", reminder.getForeverState());
-    vendorFields.put("daysOfWeek", gson.toJson(reminder.getDaysOfWeek()));
+        List<Reminder> reminders = getRemindersFromCalendar(context, calendarId);
+        for (Reminder reminder : reminders){
+            int id = database.getIdFromSyncId(reminder.getSyncId());
+            if (id == Reminder.DEFAULT_ID) {
+                // There is no reminder with this sync id in db, create an id for it
+                id = database.getLastReminderId() + 1;
+            }
+            reminder.setId(id);
 
-    values.put(Events.CALENDAR_ID, calendarId);
-    values.put(Events.TITLE, reminder.getTitle());
-    values.put(Events.DESCRIPTION, reminder.getContent());
-    values.put(Events.DTSTART, dtstart);
-    values.put(Events.DTEND, dtstart); // mandatory field
-    values.put(Events.EVENT_COLOR, color);
-    values.put(Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
-    values.put(COL_BLOB, gson.toJson(vendorFields));
+            database.addReminder(reminder);
+            if (reminder.getRepeatType() == Reminder.SPECIFIC_DAYS) {
+                database.addDaysOfWeek(reminder);
+            }
 
-    String syncId = reminder.getSyncId();
-    if (syncId.equals(Reminder.DEFAULT_SYNC_ID)) {
-      // The reminder is a new one, let's get an id for it. Values will be filled after.
-      // This must be called before database.addReminder() because it changes the reminder id
-      syncId = UUID.randomUUID().toString();
-      values.put(Events.UID_2445, syncId);
-      cr.insert(Events.CONTENT_URI, values);
-    } else {
-      values.put(Events.UID_2445, syncId);
-      String where = Events.UID_2445 + " = ?";
-      String[] selectionArgs = new String[]{syncId};
-      cr.update(Events.CONTENT_URI, values, where, selectionArgs);
+            AlarmUtil.setAlarm(context, reminder);
+        }
+
+        database.close();
     }
 
-    return syncId;
-  }
+    @SuppressLint("MissingPermission") // permission is asked by the caller
+    public static String syncUpdatedReminderInCalendar(Context context, Reminder reminder) {
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        final String calendarId = sharedPreferences.getString("listSyncCalendar", "");
 
-  @SuppressLint("MissingPermission") // permission is asked by the caller
-  public static void syncReminderDeletionInCalendar(Context context, Reminder reminder) {
-    final ContentResolver cr = context.getContentResolver();
+        final Gson gson = new Gson();
+        final ContentResolver cr = context.getContentResolver();
+        final DateFormat formatter = new SimpleDateFormat("yyyyMMddHHmm");
+        ContentValues values = new ContentValues();
 
-    if (reminder.getSyncId().equals(Reminder.DEFAULT_SYNC_ID)) return;
+        // android event DTSTART format: timestamp in ms (not ICal DTSTART)
+        String strDate = reminder.getDateAndTime();
+        long dtstart;
+        try {
+            dtstart = formatter.parse(strDate).getTime();
+        } catch (ParseException ex){
+            System.err.println(ex.toString());
+            return reminder.getSyncId();
+        }
 
-    cr.delete(Events.CONTENT_URI, Events.UID_2445 + " = ?", new String[]{reminder.getSyncId()});
-  }
+        long color = Color.parseColor(reminder.getColour()); // add opacity
 
-  public HashMap<String, String> getCalendarsList(Context context) {
-    final String[] EVENT_PROJECTION = new String[]{
-        Calendars._ID,
-        Calendars.CALENDAR_DISPLAY_NAME
-    };
+        Map<String, String> vendorFields = new HashMap<>();
+        vendorFields.put("icon", reminder.getIcon());
+        vendorFields.put("repeatType", String.valueOf(reminder.getRepeatType()));
+        vendorFields.put("numberToShow", String.valueOf(reminder.getNumberToShow()));
+        vendorFields.put("numberShown", String.valueOf(reminder.getNumberShown()));
+        vendorFields.put("interval", String.valueOf(reminder.getInterval()));
+        vendorFields.put("foreverState", reminder.getForeverState());
+        vendorFields.put("daysOfWeek", gson.toJson(reminder.getDaysOfWeek()));
 
-    final ContentResolver cr = context.getContentResolver();
-    final Uri uri = Calendars.CONTENT_URI;
+        values.put(Events.CALENDAR_ID, calendarId);
+        values.put(Events.TITLE, reminder.getTitle());
+        values.put(Events.DESCRIPTION, reminder.getContent());
+        values.put(Events.DTSTART, dtstart);
+        values.put(Events.DTEND, dtstart); // mandatory field
+        values.put(Events.EVENT_COLOR, color);
+        values.put(Events.EVENT_TIMEZONE, TimeZone.getDefault().getID());
+        values.put(COL_BLOB, gson.toJson(vendorFields));
 
-    HashMap<String, String> calendars = new HashMap<>();
+        String syncId = reminder.getSyncId();
+        if (syncId.equals(Reminder.DEFAULT_SYNC_ID)) {
+            // The reminder is a new one, let's get an id for it. Values will be filled after.
+            // This must be called before database.addNotification() because it changes the reminder id
+            syncId = UUID.randomUUID().toString();
+            values.put(Events.UID_2445, syncId);
+            cr.insert(Events.CONTENT_URI, values);
+        } else {
+            values.put(Events.UID_2445, syncId);
+            String where = Events.UID_2445 + " = ?";
+            String[] selectionArgs = new String[]{syncId};
+            cr.update(Events.CONTENT_URI, values, where, selectionArgs);
+        }
 
-
-    Cursor cursor;
-    try {
-      cursor = cr.query(uri, EVENT_PROJECTION, null, null, null);
-    } catch (SecurityException e) {
-      return calendars;
+        return syncId;
     }
 
-    if (cursor.moveToFirst()) {
-      do {
-        String name = cursor.getString(cursor.getColumnIndex(Calendars.CALENDAR_DISPLAY_NAME));
-        String id = cursor.getString(cursor.getColumnIndex(Calendars._ID));
+    @SuppressLint("MissingPermission") // permission is asked by the caller
+    public static void syncReminderDeletionInCalendar(Context context, Reminder reminder) {
+        final ContentResolver cr = context.getContentResolver();
 
-        calendars.put(name, id);
-      } while (cursor.moveToNext());
+        if (reminder.getSyncId().equals(Reminder.DEFAULT_SYNC_ID)) return;
+
+        cr.delete(Events.CONTENT_URI, Events.UID_2445 + " = ?", new String[]{reminder.getSyncId()});
     }
-    cursor.close();
 
-    return calendars;
-  }
+    public HashMap<String, String> getCalendarsList(Context context) {
+        final String[] EVENT_PROJECTION = new String[]{
+            Calendars._ID,
+            Calendars.CALENDAR_DISPLAY_NAME
+        };
+
+        final ContentResolver cr = context.getContentResolver();
+        final Uri uri = Calendars.CONTENT_URI;
+
+        HashMap<String, String> calendars = new HashMap<>();
+
+
+        Cursor cursor;
+        try {
+            cursor = cr.query(uri, EVENT_PROJECTION, null, null, null);
+        } catch (SecurityException e) {
+            return calendars;
+        }
+
+        if (cursor.moveToFirst()) {
+            do {
+                String name = cursor.getString(cursor.getColumnIndex(Calendars.CALENDAR_DISPLAY_NAME));
+                String id = cursor.getString(cursor.getColumnIndex(Calendars._ID));
+
+                calendars.put(name, id);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return calendars;
+    }
 }
 
