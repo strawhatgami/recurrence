@@ -237,6 +237,9 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
         database.close();
     }
 
+    public void onColorChooserDismissed(ColorChooserDialog dialog) {
+    }
+
     @OnClick(R.id.repeat_row)
     public void repeatSelector() {
         DialogFragment dialog = new RepeatSelector();
