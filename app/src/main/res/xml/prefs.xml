@@ -29,6 +29,10 @@
             android:title="@string/snooze"
             android:summary="@string/snooze_detail"/>
         <CheckBoxPreference
+            android:key="checkBoxAutoFixDateInPast"
+            android:title="@string/fix_date"
+            android:summary="@string/fix_date_detail"/>
+        <CheckBoxPreference
             android:key="checkBoxNagging"
             android:title="@string/nagging_reminder"
             android:summary="@string/nagging_detail"/>
