@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
@@ -33,6 +35,7 @@ import com.bleyl.recurrence.models.Reminder;
 import com.bleyl.recurrence.R;
 import com.bleyl.recurrence.receivers.AlarmReceiver;
 import com.bleyl.recurrence.receivers.DismissReceiver;
+import com.bleyl.recurrence.receivers.SnoozeActionReceiver;
 import com.bleyl.recurrence.receivers.SnoozeReceiver;
 import com.bleyl.recurrence.utils.AlarmUtil;
 import com.bleyl.recurrence.utils.DateAndTimeUtil;
@@ -64,6 +67,7 @@ public class ViewActivity extends AppCompatActivity {
 
     private Reminder reminder;
     private boolean hideMarkAsDone;
+    private boolean hideSnooze = true;
     private boolean reminderChanged;
 
     @Override
@@ -96,6 +100,10 @@ public class ViewActivity extends AppCompatActivity {
             Intent dismissIntent = new Intent().setClass(this, DismissReceiver.class);
             dismissIntent.putExtra("NOTIFICATION_ID", mReminderId);
             sendBroadcast(dismissIntent);
+
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            Boolean snooze = sharedPreferences.getBoolean("checkBoxSnooze", false);
+            hideSnooze = !snooze;
         }
 
         // Check if notification has been deleted
@@ -173,6 +181,13 @@ public class ViewActivity extends AppCompatActivity {
             getWindow().setEnterTransition(setEnter);
             getWindow().setReturnTransition(setExit);
         }
+    }
+
+    private void actionSnooze() {
+        Intent snoozeIntent = new Intent(this, SnoozeActionReceiver.class);
+        snoozeIntent.putExtra("NOTIFICATION_ID", reminder.getId());
+        this.sendBroadcast(snoozeIntent);
+        finish();
     }
 
     public void confirmDelete() {
@@ -274,6 +289,10 @@ public class ViewActivity extends AppCompatActivity {
         if (hideMarkAsDone) {
             menu.findItem(R.id.action_mark_as_done).setVisible(false);
         }
+
+        if (hideSnooze) {
+            menu.findItem(R.id.action_snooze).setVisible(false);
+        }
         return true;
     }
 
@@ -291,6 +310,9 @@ public class ViewActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 onBackPressed();
+                return true;
+            case R.id.action_snooze:
+                actionSnooze();
                 return true;
             case R.id.action_delete:
                 confirmDelete();
