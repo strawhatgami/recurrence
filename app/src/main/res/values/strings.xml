@@ -67,7 +67,7 @@
     <string name="translator">Translator</string>
     <string name="send_email">Send email</string>
     <string name="default_calendar">No calendar</string>
-    <string name="default_calendar_value">-1</string>
+    <string name="default_calendar_value" translatable="false">-1</string>
     <string name="calendar_sync_checkbox_title">Sync reminders with calendar</string>
     <string name="calendar_sync_checkbox_summary">Needs the permissions asked when enabling functionality to be permanently given</string>
     <string name="calendar_list_title">Select calendar to sync reminders with</string>
