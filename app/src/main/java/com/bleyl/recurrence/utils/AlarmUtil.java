@@ -42,6 +42,13 @@ public class AlarmUtil {
         }
     }
 
+    public static void setAlarm(Context context, Reminder reminder) {
+        Calendar calendar = DateAndTimeUtil.parseDateAndTime(reminder.getDateAndTime());
+        calendar.set(Calendar.SECOND, 0);
+        Intent alarmIntent = new Intent(context, AlarmReceiver.class);
+        AlarmUtil.setAlarm(context, alarmIntent, reminder.getId(), calendar);
+    }
+
     public static void cancelAlarm(Context context, Intent intent, int notificationId) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);

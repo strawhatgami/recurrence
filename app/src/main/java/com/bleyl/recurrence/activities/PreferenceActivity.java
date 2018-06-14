@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 import com.bleyl.recurrence.R;
 import com.bleyl.recurrence.fragments.PreferenceFragment;
+import com.bleyl.recurrence.utils.PermissionUtil;
 
 public class PreferenceActivity extends AppCompatActivity {
 
@@ -31,5 +32,9 @@ public class PreferenceActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+        PermissionUtil.getInstance().onRequestPermissionsResult(this, requestCode, permissions, grantResults);
     }
 }
