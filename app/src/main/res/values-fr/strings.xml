@@ -58,6 +58,11 @@
     <string name="thanks_to">Remerciements</string>
     <string name="translator">Traducteur</string>
     <string name="send_email">Envoyer un email</string>
+    <string name="default_calendar">Pas de calendrier</string>
+    <string name="calendar_sync_checkbox_title">Synchroniser les rappels avec un calendrier</string>
+    <string name="calendar_sync_checkbox_summary">Les permissions demandées à l\'activation de la fonctionnalité doivent être données de manière permanente</string>
+    <string name="calendar_list_title">Sélectionner le calendrier avec lequel synchroniser les rappels</string>
+    <string name="calendar_list_summary">Sélectionnez le calendrier qui aura pour unique utilisation les synchronisations avec cette application. Une fois choisi les rappels seront tous automatiquement importés.</string>
     <string-array name="repeat_array">
         <item>Ne pas répéter</item>
         <item>Chaque heure</item>
