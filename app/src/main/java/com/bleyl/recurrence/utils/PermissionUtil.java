@@ -4,12 +4,11 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.SparseArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PermissionUtil {
 
@@ -17,10 +16,10 @@ public class PermissionUtil {
         void onPermissionGranted(String[] permissions, int[] grantResults);
     }
 
-    private HashMap<Integer,IPermissionCallback> expectedCallbacks;
+    private SparseArray<IPermissionCallback> expectedCallbacks;
 
     private PermissionUtil() {
-        expectedCallbacks = new HashMap<Integer,IPermissionCallback>();
+        expectedCallbacks = new SparseArray<>();
     }
 
     private static PermissionUtil INSTANCE = new PermissionUtil();
@@ -48,10 +47,9 @@ public class PermissionUtil {
         // First, check if collision with an already registered callback
         // Collisions occur when different callbacks (that have thus different hashcodes) share the same requestCode.
         Boolean collision = false;
-        for (Map.Entry<Integer, IPermissionCallback> entry : expectedCallbacks.entrySet())
-        {
-            if (requestCode != entry.getKey()) continue;
-            collision = collision || hashCode != entry.getValue().hashCode();
+        for (int i = 0; i < expectedCallbacks.size(); i++) {
+            if (requestCode != expectedCallbacks.keyAt(i)) continue;
+            collision = collision || hashCode != expectedCallbacks.valueAt(i).hashCode();
         }
 
         if (collision) {
@@ -78,10 +76,7 @@ public class PermissionUtil {
             // Permissions are all granted
             int[] grantResults = new int[permissions.length];
             Arrays.fill(grantResults, PackageManager.PERMISSION_GRANTED);
-            if(callback != null) {
-                expectedCallbacks.values().remove(callback);
-                callback.onPermissionGranted(permissions, grantResults);
-            }
+            callback.onPermissionGranted(permissions, grantResults);
             return;
         }
 
@@ -95,7 +90,7 @@ public class PermissionUtil {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         IPermissionCallback callback = expectedCallbacks.get(requestCode);
         if (callback != null) {
-            expectedCallbacks.values().remove(callback);
+            expectedCallbacks.remove(requestCode);
             callback.onPermissionGranted(permissions, grantResults);
         }
     }
