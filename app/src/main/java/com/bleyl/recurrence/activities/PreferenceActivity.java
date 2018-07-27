@@ -35,6 +35,6 @@ public class PreferenceActivity extends AppCompatActivity {
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
-        PermissionUtil.getInstance().onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+        PermissionUtil.getInstance().onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

@@ -335,20 +335,16 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
             String[] permissions = new String[]{Manifest.permission.WRITE_CALENDAR};
             PermissionUtil
                 .getInstance()
-                .allPermissionsGrantedOrAskForThem(
-                    this,
-                    this,
-                    R.string.perm_cb_write_reminder_in_calendar,
-                    permissions
-                );
+                .allPermissionsGrantedOrAskForThem(this, permissions, new PermissionUtil.IPermissionCallback() {
+                    @Override
+                    public void onPermissionGranted(String[] permissions, int[] grantResults) {
+                        updateReminderInCalendar = PermissionUtil.allGranted(grantResults);
+                        saveNotificationCallback();
+                    }
+                });
         } else {
             saveNotificationCallback();
         }
-    }
-
-    public void saveNotificationPermissionCallback(String[] permissions, int[] grantResults) {
-        updateReminderInCalendar = PermissionUtil.allGranted(grantResults);
-        saveNotificationCallback();
     }
 
     private void saveNotificationCallback() {

@@ -1,6 +1,7 @@
 package com.bleyl.recurrence.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -178,27 +179,23 @@ public class ViewActivity extends AppCompatActivity {
         String calendarId = sharedPreferences.getString("listSyncCalendar", noCalendarId);
         if (saveInCalendar && !calendarId.equals(noCalendarId) && !reminder.getSyncId().equals(Reminder.DEFAULT_SYNC_ID)) {
             String[] permissions = new String[]{Manifest.permission.WRITE_CALENDAR};
+            final Activity thisActivity = this;
             PermissionUtil
                 .getInstance()
-                .allPermissionsGrantedOrAskForThem(
-                    this,
-                    this,
-                    R.string.perm_cb_delete_reminder_in_calendar,
-                    permissions
-                );
+                .allPermissionsGrantedOrAskForThem(this, permissions, new PermissionUtil.IPermissionCallback() {
+                    @Override
+                    public void onPermissionGranted(String[] permissions, int[] grantResults) {
+                        boolean allAllowed = PermissionUtil.allGranted(grantResults);
+                        if (allAllowed) {
+                            CalendarHelper.syncReminderDeletionInCalendar(thisActivity, reminder);
+                        }
+
+                        finish();
+                    }
+                });
         } else {
             finish();
         }
-
-    }
-
-    public void actionDeletePermissionCallback(String[] permissions, int[] grantResults) {
-        boolean allAllowed = PermissionUtil.allGranted(grantResults);
-        if (allAllowed) {
-            CalendarHelper.syncReminderDeletionInCalendar(this, reminder);
-        }
-
-        finish();
     }
 
     private void actionEdit() {

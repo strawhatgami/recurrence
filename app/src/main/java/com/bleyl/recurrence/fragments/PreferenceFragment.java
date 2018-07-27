@@ -17,7 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PreferenceFragment extends android.preference.PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class PreferenceFragment extends android.preference.PreferenceFragment
+        implements SharedPreferences.OnSharedPreferenceChangeListener{
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -82,24 +83,20 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                     String[] permissions = new String[]{Manifest.permission.READ_CALENDAR};
                     PermissionUtil
                         .getInstance()
-                        .allPermissionsGrantedOrAskForThem(
-                            getActivity(),
-                            that,
-                            R.string.perm_cb_restore_from_calendar,
-                            permissions
-                        );
+                        .allPermissionsGrantedOrAskForThem(getActivity(), permissions, new PermissionUtil.IPermissionCallback() {
+                            @Override
+                            public void onPermissionGranted(String[] permissions, int[] grantResults) {
+                                boolean allAllowed = PermissionUtil.allGranted(grantResults);
+                                if (allAllowed) {
+                                    CalendarHelper.restoreFromCalendar(getActivity(), listPreferenceUpdatedValue);
+                                }
+                            }
+                        });
                 }
 
                 return true;
             }
         });
-    }
-
-    public void restoreFromCalendarPermissionCallback(String[] permissions, int[] grantResults) {
-        boolean allAllowed = PermissionUtil.allGranted(grantResults);
-        if (allAllowed) {
-            CalendarHelper.restoreFromCalendar(getActivity(), listPreferenceUpdatedValue);
-        }
     }
 
     public void enableSyncFunctionality(Boolean allowed) {
@@ -116,12 +113,18 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                     String[] permissions = new String[]{Manifest.permission.READ_CALENDAR};
                     PermissionUtil
                         .getInstance()
-                        .allPermissionsGrantedOrAskForThem(
-                            getActivity(),
-                            that,
-                            R.string.perm_cb_build_calendar_pref_list,
-                            permissions
-                        );
+                        .allPermissionsGrantedOrAskForThem(getActivity(), permissions, new PermissionUtil.IPermissionCallback() {
+                            @Override
+                            public void onPermissionGranted(String[] permissions, int[] grantResults) {
+                              boolean allAllowed = PermissionUtil.allGranted(grantResults);
+                              enableSyncFunctionality(allAllowed);
+
+                              if (!allAllowed) {
+                                  CheckBoxPreference checkboxPreference = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
+                                  checkboxPreference.setChecked(false);
+                              }
+                            }
+                        });
                     return true;
                 } else {
                     enableSyncFunctionality(false);
@@ -130,16 +133,6 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
                 return true;
             }
         });
-    }
-
-    public void getCalendarsListPermissionCallback(String[] permissions, int[] grantResults) {
-        boolean allAllowed = PermissionUtil.allGranted(grantResults);
-        enableSyncFunctionality(allAllowed);
-
-        if (!allAllowed) {
-            CheckBoxPreference checkboxPreference = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
-            checkboxPreference.setChecked(false);
-        }
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -157,4 +150,5 @@ public class PreferenceFragment extends android.preference.PreferenceFragment im
         super.onStop();
         getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
+
 }
