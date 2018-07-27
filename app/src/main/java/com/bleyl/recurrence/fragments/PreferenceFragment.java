@@ -37,8 +37,8 @@ public class PreferenceFragment extends android.preference.PreferenceFragment
          * listPreference (that could have been the right way).
          */
         setCheckBoxSyncCalendarsAction();
-        final CheckBoxPreference checkboxPreference = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
-        enableSyncFunctionality(checkboxPreference.isChecked());
+        final CheckBoxPreference checkBoxSyncCalendars = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
+        enableSyncFunctionality(checkBoxSyncCalendars.isChecked());
     }
 
     private void updatePreferenceSummary() {
@@ -106,10 +106,10 @@ public class PreferenceFragment extends android.preference.PreferenceFragment
 
     public void setCheckBoxSyncCalendarsAction() {
         final PreferenceFragment that = this;
-        final CheckBoxPreference checkboxPreference = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
-        checkboxPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+        final CheckBoxPreference checkBoxSyncCalendars = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
+        checkBoxSyncCalendars.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             public boolean onPreferenceClick(Preference preference) {
-                if (checkboxPreference.isChecked()) {
+                if (checkBoxSyncCalendars.isChecked()) {
                     String[] permissions = new String[]{Manifest.permission.READ_CALENDAR};
                     PermissionUtil
                         .getInstance()
@@ -120,8 +120,8 @@ public class PreferenceFragment extends android.preference.PreferenceFragment
                               enableSyncFunctionality(allAllowed);
 
                               if (!allAllowed) {
-                                  CheckBoxPreference checkboxPreference = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
-                                  checkboxPreference.setChecked(false);
+                                  CheckBoxPreference checkBoxSyncCalendars = (CheckBoxPreference) findPreference("checkBoxSyncCalendars");
+                                  checkBoxSyncCalendars.setChecked(false);
                               }
                             }
                         });
