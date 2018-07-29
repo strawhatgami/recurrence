@@ -212,7 +212,7 @@ public class CalendarHelper{
         String syncId = reminder.getSyncId();
         if (syncId.equals(Reminder.DEFAULT_SYNC_ID)) {
             // The reminder is a new one, let's get an id for it. Values will be filled after.
-            // This must be called before database.addNotification() because it changes the reminder id
+            // This must be called before database.addReminder() because it changes the reminder id
             syncId = UUID.randomUUID().toString();
             values.put(Events.UID_2445, syncId);
             cr.insert(Events.CONTENT_URI, values);
