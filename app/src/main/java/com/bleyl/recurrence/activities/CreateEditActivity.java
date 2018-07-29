@@ -276,7 +276,7 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
                 .allowUserColorInputAlpha(false)
                 .customColors(colours, null)
                 .preselect(Color.parseColor(colour))
-                .show();
+                .show(this);
     }
 
     @Override
@@ -287,6 +287,9 @@ public class CreateEditActivity extends AppCompatActivity implements ColorChoose
         DatabaseHelper database = DatabaseHelper.getInstance(this);
         database.addColour(new Colour(selectedColour, DateAndTimeUtil.toStringDateTimeWithSeconds(Calendar.getInstance())));
         database.close();
+    }
+
+    public void onColorChooserDismissed(ColorChooserDialog dialog) {
     }
 
     @OnClick(R.id.repeat_row)
