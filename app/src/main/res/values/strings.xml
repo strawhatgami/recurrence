@@ -73,6 +73,8 @@
     <string name="calendar_sync_checkbox_summary">Needs the permissions asked when enabling functionality to be permanently given</string>
     <string name="calendar_list_title">Select calendar to sync reminders with</string>
     <string name="calendar_list_summary">Select the calendar that will have for only purpose this app syncs. Once chosen all its events will be automatically imported.</string>
+    <string name="channel_name">Recurrence tasks reminders</string>
+    <string name="channel_description">Channel for all the tasks reminders</string>
     <string-array name="repeat_array">
         <item>Does not repeat</item>
         <item>Every hour</item>

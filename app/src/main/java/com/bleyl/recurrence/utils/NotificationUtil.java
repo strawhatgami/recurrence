@@ -1,6 +1,7 @@
 package com.bleyl.recurrence.utils;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -22,6 +23,24 @@ import com.bleyl.recurrence.activities.ViewActivity;
 import java.util.Calendar;
 
 public class NotificationUtil {
+    private static String CHANNEL_ID = "MAIN_NOTIF_CHAN";
+
+    private static void createNotificationChannel(Context context) {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = context.getString(R.string.channel_name);
+            String description = context.getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            assert notificationManager != null;
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 
     public static void createNotification(Context context, Reminder reminder, boolean showQuietly) {
         // Create intent for reminder onClick behaviour
@@ -37,7 +56,7 @@ public class NotificationUtil {
 
         int imageResId = context.getResources().getIdentifier(reminder.getIcon(), "drawable", context.getPackageName());
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(imageResId)
                 .setColor(Color.parseColor(reminder.getColour()))
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(reminder.getContent()))
@@ -83,15 +102,17 @@ public class NotificationUtil {
         if (sharedPreferences.getBoolean("checkBoxSnooze", false))
             builder.addAction(R.drawable.ic_snooze_white_24dp, context.getString(R.string.snooze), pendingSnooze);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
             builder.setPriority(Notification.PRIORITY_HIGH);
 
+        NotificationUtil.createNotificationChannel(context);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        assert notificationManager != null;
         notificationManager.notify(reminder.getId(), builder.build());
     }
 
     public static void cancelNotification(Context context, int notificationId) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        assert notificationManager != null;
         notificationManager.cancel(notificationId);
     }
 }
